@@ -1,69 +1,23 @@
-# FFmpeg Static Auto-Builds
+# FFmpeg Specific Auto-Builds
 
-Static Windows (x86_64) and Linux (x86_64) Builds of ffmpeg master and latest release branch.
+[BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) builds **full** versions of FFmpeg that include all dependencies,
+thus the size of each asset is somehow too large.     
+For example, `ffmpeg-master-latest-win64-lgpl.zip` ≈ 95.9 MB.   
+Here, the aim of this repo is to smallize the asset size by customize the build configuration.  
+Follow the steps below.
 
-Windows builds are targetting Windows 7 and newer.
 
-Linux (x86_64) builds are targetting Ubuntu 16.04 (glibc-2.23 + linux-4.4) and anything more recent.
 
-Linux (arm64) builds are targetting Ubuntu 18.04 (glibc-2.27 + linux-4.15) and anything more recent.
+## Specify the Targets and Variants
+See <https://github.com/ButterAndButterfly/FFmpeg-Builds/blob/9730dd67c1cebfb2a6bde84b6ba7c181a8984a51/.github/workflows/release.yml#L20-L21>
 
-## Auto-Builds
+## Specify the build configuration
+See the [commit](https://github.com/ButterAndButterfly/FFmpeg-Builds/commit/9730dd67c1cebfb2a6bde84b6ba7c181a8984a51). Or   
+<https://github.com/ButterAndButterfly/FFmpeg-Builds/blob/9730dd67c1cebfb2a6bde84b6ba7c181a8984a51/build.sh#L69>  
 
-Builds run daily at 12:00 UTC (or GitHubs idea of that time) and are automatically released on success.
+You should ensure the configuration is part of the Variants,   
+e.g. `--enable-gpl --enable-version3` is **invalid** for Variant `lgpl`.
 
-**Auto-Builds run ONLY for win64 and linux(arm)64. There are no win32/x86 auto-builds, though you can produce win32 builds yourself following the instructions below.**
 
-### Release Retention Policy
+For more details, see [release.yml](.github/workflows/release.yml)
 
-- The last build of each month is kept for two years.
-- The last 14 daily builds are kept.
-- The special "latest" build floats and provides consistent URLs always pointing to the latest build.
-
-## Package List
-
-For a list of included dependencies check the scripts.d directory.
-Every file corresponds to its respective package.
-
-## How to make a build
-
-### Prerequisites
-
-* bash
-* docker
-
-### Build Image
-
-* `./makeimage.sh target variant [addins]`
-
-### Build FFmpeg
-
-* `./build.sh target variant [addins]`
-
-On success, the resulting zip file will be in the `artifacts` subdir.
-
-### Targets, Variants and Addins
-
-Available targets:
-* `win64` (x86_64 Windows)
-* `win32` (x86 Windows)
-* `linux64` (x86_64 Linux, glibc>=2.23, linux>=4.4)
-* `linuxarm64` (arm64 (aarch64) Linux, glibc>=2.27, linux>=4.15)
-
-The linuxarm64 target will not build some dependencies due to lack of arm64 (aarch64) architecture support or cross-compiling restrictions.
-
-* `davs2` and `xavs2`: aarch64 support is broken.
-* `libmfx` and `libva`: Library for Intel QSV, so there is no aarch64 support.
-
-Available:
-* `gpl` Includes all dependencies, even those that require full GPL instead of just LGPL.
-* `lgpl` Lacking libraries that are GPL-only. Most prominently libx264 and libx265.
-* `nonfree` Includes fdk-aac in addition to all the dependencies of the gpl variant.
-* `gpl-shared` Same as gpl, but comes with the libav* family of shared libs instead of pure static executables.
-* `lgpl-shared` Same again, but with the lgpl set of dependencies.
-* `nonfree-shared` Same again, but with the nonfree set of dependencies.
-
-All of those can be optionally combined with any combination of addins.
-* `4.4` to build from the 4.4 release branch instead of master.
-* `5.0` to build from the 5.0 release branch instead of master.
-* `debug` to not strip debug symbols from the binaries. This increases the output size by about 250MB.
