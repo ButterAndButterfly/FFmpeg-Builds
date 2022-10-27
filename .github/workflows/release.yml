@@ -27,6 +27,8 @@ jobs:
           password: ${{ github.token }}
 
       - name: Build ffmpeg
+        env:
+          FF_SPECIFIC_CONFIGURE: ${{ secrets.FF_SPECIFIC_CONFIGURE }}
         run: |
           chmod 777 build.sh
           ./build.sh ${{ matrix.target }} ${{ matrix.variant }}
@@ -45,9 +47,15 @@ jobs:
           NAME="Auto-Build $RELDATE"
           TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
           ASSET_NAME="$(ls artifacts/)"
-          echo "asset_name=${ASSET_NAME}" >> $GITHUB_OUTPUT
-          echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
-          echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
+          echo "::set-output name=isort-output::${isort_result}"
+          echo "::set-output name=isort-output::${isort_result}"
+          echo "::set-output name=isort-output::${isort_result}"
+          ## Dont know why error happens - 
+          ##    Error: Unable to process file command 'output' successfully
+          ##    Error: Invalid format 'linuxarm64-lgpl.txt'/ 'linuxarm64-lgpl.txt' / 'win64-lgpl.txt
+          # echo "asset_name=${ASSET_NAME}" >> $GITHUB_OUTPUT
+          # echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
+          # echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
