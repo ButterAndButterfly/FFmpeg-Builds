@@ -1,14 +1,14 @@
 name: Release Build
 on:
   workflow_dispatch:
-    inputs: 
-    
+    inputs:
+
 env:
   DOCKER_BUILDKIT: 1
 
 jobs:
-  build:
-    name: Release Build
+  build_ffmpeg:
+    name: Build ffmpeg
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -40,30 +40,29 @@ jobs:
           name: ffmpeg
           path: artifacts/*
 
-      - name: Gen Params
-        id: gen_params
+  publish_release:
+    name: Publish release
+    if: ${{ !cancelled() && needs.build_ffmpeg.result == 'success' }}
+    needs: build_ffmpeg
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ffmpeg
+          path: artifacts
+      - name: Create release
+        id: create_release
         run: |
+          set -xe
+          shopt -s nullglob
           RELDATE="$(date +'%Y-%m-%d %H:%M')"
           NAME="Auto-Build $RELDATE"
           TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
-          ASSET_NAME="$(ls artifacts/)"
-          echo "::set-output name=asset_name::${ASSET_NAME}"
-          echo "::set-output name=tag_name::${TAGNAME}"
-          echo "::set-output name=rel_date::${RELDATE}"
-          ## Dont know why error happens - 
-          ##    Error: Unable to process file command 'output' successfully
-          ##    Error: Invalid format 'linuxarm64-lgpl.txt'/ 'linuxarm64-lgpl.txt' / 'win64-lgpl.txt
-          # echo "asset_name=${ASSET_NAME}" >> $GITHUB_OUTPUT
-          # echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
-          # echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{steps.gen_params.outputs.tag_name}}
-          name: ${{steps.gen_params.outputs.tag_name}}
-          body: ffmpeg-${{ matrix.target }}-${{ matrix.variant }}
-          draft: false
-          prerelease: false
-          files: |
-            ./artifacts/${{steps.gen_params.outputs.asset_name}}
+          hub release create $(for a in artifacts/*.{zip,tar.xz}; do echo -a $a; done) -m "$NAME" -t "master" "$TAGNAME"
+          echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
+          echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
