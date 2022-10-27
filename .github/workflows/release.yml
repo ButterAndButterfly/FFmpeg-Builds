@@ -1,0 +1,61 @@
+name: Release Build
+on:
+  workflow_dispatch:
+    inputs: 
+    
+env:
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build:
+    name: Release Build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [win64, linux64, linuxarm64]
+        variant: [lgpl]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Docker
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build ffmpeg
+        run: |
+          chmod 777 build.sh
+          ./build.sh ${{ matrix.target }} ${{ matrix.variant }}
+          cd artifacts
+          ls -l
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg
+          path: artifacts/*
+
+      - name: Gen Params
+        id: gen_params
+        run: |
+          RELDATE="$(date +'%Y-%m-%d %H:%M')"
+          NAME="Auto-Build $RELDATE"
+          TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
+          ASSET_NAME="$(ls artifacts/)"
+          echo "asset_name=${ASSET_NAME}" >> $GITHUB_OUTPUT
+          echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
+          echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{steps.gen_params.outputs.tag_name}}
+          name: ${{steps.gen_params.outputs.tag_name}}
+          body: ffmpeg-${{ matrix.target }}-${{ matrix.variant }}
+          draft: false
+          prerelease: false
+          files: |
+            ./artifacts/${{steps.gen_params.outputs.asset_name}}
