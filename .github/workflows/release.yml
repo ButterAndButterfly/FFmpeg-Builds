@@ -47,9 +47,9 @@ jobs:
           NAME="Auto-Build $RELDATE"
           TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
           ASSET_NAME="$(ls artifacts/)"
-          echo "::set-output name=isort-output::${isort_result}"
-          echo "::set-output name=isort-output::${isort_result}"
-          echo "::set-output name=isort-output::${isort_result}"
+          echo "::set-output name=asset_name::${ASSET_NAME}"
+          echo "::set-output name=tag_name::${TAGNAME}"
+          echo "::set-output name=rel_date::${RELDATE}"
           ## Dont know why error happens - 
           ##    Error: Unable to process file command 'output' successfully
           ##    Error: Invalid format 'linuxarm64-lgpl.txt'/ 'linuxarm64-lgpl.txt' / 'win64-lgpl.txt
