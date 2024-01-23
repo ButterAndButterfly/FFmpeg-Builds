@@ -58,7 +58,7 @@ jobs:
         run: |
           RELDATE="$(date +'%Y-%m-%d %H:%M')"
           NAME="Auto-Build $RELDATE"
-          TAGNAME="autobuild-$RELDATE"
+          TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
           echo "tag_name=${TAGNAME}" >> $GITHUB_ENV
           echo "rel_date=${RELDATE}" >> $GITHUB_ENV
           echo "release_name=${NAME}" >> $GITHUB_ENV
