@@ -11,7 +11,7 @@ Here, the aim of this repo is to smallize the asset size by customize the build 
     + remove all the `*.yml`  
     + create `release.yml`  
 
-+ `build.sh`
++ `build.sh`  
 set `FF_CONFIGURE="${FF_SPECIFIC_CONFIGURE:-$FF_CONFIGURE}"` before the command
 ```
 ./configure --prefix=/ffbuild/prefix --pkg-config-flags="--static" \$FFBUILD_TARGET_FLAGS $FF_CONFIGURE \

@@ -1,18 +1,18 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://bitbucket.org/multicoreware/x265_git.git"
-SCRIPT_COMMIT="0b75c44c10e605fe9e9ebed58f04a46271131827"
+SCRIPT_COMMIT="ce8642f22123f0b8cf105c88fc1e8af9888bd345"
 
 ffbuild_enabled() {
     [[ $VARIANT == lgpl* ]] && return -1
     return 0
 }
 
-ffbuild_dockerbuild() {
-    git clone "$SCRIPT_REPO" x265
-    cd x265
-    git checkout "$SCRIPT_COMMIT"
+ffbuild_dockerdl() {
+    echo "git clone \"$SCRIPT_REPO\" . && git checkout \"$SCRIPT_COMMIT\""
+}
 
+ffbuild_dockerbuild() {
     local common_config=(
         -DCMAKE_INSTALL_PREFIX="$FFBUILD_PREFIX"
         -DCMAKE_TOOLCHAIN_FILE="$FFBUILD_CMAKE_TOOLCHAIN"

@@ -11,10 +11,11 @@ ffbuild_dockerstage() {
     to_df "RUN --mount=src=${SELF},dst=/stage.sh --mount=src=patches/zvbi,dst=/patches run_stage /stage.sh"
 }
 
-ffbuild_dockerbuild() {
-    retry-tool sh -c "rm -rf zvbi && svn checkout '${SCRIPT_REPO}@${SCRIPT_REV}' zvbi"
-    cd zvbi
+ffbuild_dockerdl() {
+    echo "retry-tool sh -c \"rm -rf zvbi && svn checkout '${SCRIPT_REPO}@${SCRIPT_REV}' zvbi\" && cd zvbi"
+}
 
+ffbuild_dockerbuild() {
     for patch in /patches/*.patch; do
         echo "Applying $patch"
         patch -p1 < "$patch"

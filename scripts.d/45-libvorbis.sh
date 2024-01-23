@@ -8,9 +8,6 @@ ffbuild_enabled() {
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" vorbis
-    cd vorbis
-
     ./autogen.sh
 
     local myconf=(

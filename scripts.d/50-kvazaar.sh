@@ -1,16 +1,13 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/ultravideo/kvazaar.git"
-SCRIPT_COMMIT="a085e802ec6d24319160fec32c4027122e73580f"
+SCRIPT_COMMIT="f4294e000b72f483b32ab5cd4a4f5d5541466811"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" kvazaar
-    cd kvazaar
-
     ./autogen.sh
 
     local myconf=(

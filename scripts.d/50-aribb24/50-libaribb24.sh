@@ -12,9 +12,6 @@ ffbuild_dockerstage() {
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" aribb24
-    cd aribb24
-
     for patch in /patches/*.patch; do
         echo "Applying $patch"
         git am < "$patch"

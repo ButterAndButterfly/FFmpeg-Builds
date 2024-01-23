@@ -1,16 +1,13 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/glennrp/libpng.git"
-SCRIPT_COMMIT="12222e6fbdc90523be77633ed430144cfee22772"
+SCRIPT_COMMIT="2fff013a6935967960a5ae626fc21432807933dd"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" libpng
-    cd libpng
-
     autoreconf -i
 
     local myconf=(

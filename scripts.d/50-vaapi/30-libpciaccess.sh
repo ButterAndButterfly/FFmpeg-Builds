@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://gitlab.freedesktop.org/xorg/lib/libpciaccess.git"
-SCRIPT_COMMIT="d193fa690415333420b435edb5782789a6f3ea57"
+SCRIPT_COMMIT="c74d0a4b630f115e797cbb159ac13e0dc78f31f5"
 
 ffbuild_enabled() {
     [[ $TARGET != linux* ]] && return -1
@@ -9,22 +9,18 @@ ffbuild_enabled() {
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" libpciaccess
-    cd libpciaccess
-
-    autoreconf -fi
+    mkdir build && cd build
 
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
-        --enable-shared
-        --disable-static
-        --with-pic
-        --with-zlib
+        --buildtype=release
+        --default-library=shared
+        -Dzlib=enabled
     )
 
     if [[ $TARGET == linux* ]]; then
         myconf+=(
-            --host="$FFBUILD_TOOLCHAIN"
+            --cross-file=/cross.meson
         )
     else
         echo "Unknown target"
@@ -34,12 +30,12 @@ ffbuild_dockerbuild() {
     export CFLAGS="$RAW_CFLAGS"
     export LDFLAFS="$RAW_LDFLAGS"
 
-    ./configure "${myconf[@]}"
-    make -j$(nproc)
-    make install
+    meson setup "${myconf[@]}" ..
+    ninja -j$(nproc)
+    ninja install
 
     gen-implib "$FFBUILD_PREFIX"/lib/{libpciaccess.so.0,libpciaccess.a}
-    rm "$FFBUILD_PREFIX"/lib/libpciaccess{.so*,.la}
+    rm "$FFBUILD_PREFIX"/lib/libpciaccess.so*
 
     echo "Libs: -ldl" >> "$FFBUILD_PREFIX"/lib/pkgconfig/pciaccess.pc
 }

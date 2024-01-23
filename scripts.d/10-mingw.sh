@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCRIPT_REPO="https://github.com/mirror/mingw-w64.git"
-SCRIPT_COMMIT="ee5758234f77a6b573e415b26a1d387c46717f6b"
+SCRIPT_REPO="https://git.code.sf.net/p/mingw-w64/mingw-w64.git"
+SCRIPT_COMMIT="f2653dd9150006ded8026631bb7b85695edf6127"
 
 ffbuild_enabled() {
     [[ $TARGET == win* ]] || return -1
@@ -17,10 +17,11 @@ ffbuild_dockerfinal() {
     to_df "COPY --from=${PREVLAYER} /opt/mingw/. /"
 }
 
-ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" mingw
-    cd mingw
+ffbuild_dockerdl() {
+    echo "retry-tool sh -c \"rm -rf mingw && git clone '$SCRIPT_REPO' mingw\" && cd mingw && git checkout \"$SCRIPT_COMMIT\""
+}
 
+ffbuild_dockerbuild() {
     cd mingw-w64-headers
 
     unset CFLAGS
@@ -34,6 +35,7 @@ ffbuild_dockerbuild() {
         --prefix="$GCC_SYSROOT/usr/$FFBUILD_TOOLCHAIN"
         --host="$FFBUILD_TOOLCHAIN"
         --with-default-win32-winnt="0x601"
+        --with-default-msvcrt=ucrt
         --enable-idl
     )
 

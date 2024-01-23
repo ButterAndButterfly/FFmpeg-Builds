@@ -6,6 +6,10 @@ ffbuild_enabled() {
     [[ $TARGET == win* ]]
 }
 
+ffbuild_dockerdl() {
+    true
+}
+
 ffbuild_dockerstage() {
     return 0
 }

@@ -8,10 +8,11 @@ ffbuild_enabled() {
     return 0
 }
 
-ffbuild_dockerbuild() {
-    retry-tool sh -c "rm -rf xvid && svn checkout --username 'anonymous' --password '' '${SCRIPT_REPO}@${SCRIPT_REV}' xvid"
-    cd xvid
+ffbuild_dockerdl() {
+    echo "retry-tool sh -c \"rm -rf xvid && svn checkout --username 'anonymous' --password '' '${SCRIPT_REPO}@${SCRIPT_REV}' xvid\" && cd xvid"
+}
 
+ffbuild_dockerbuild() {
     cd build/generic
 
     # The original code fails on a two-digit major...

@@ -8,9 +8,6 @@ ffbuild_enabled() {
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" opencore
-    cd opencore
-
     autoreconf -i
 
     local myconf=(

@@ -3,21 +3,13 @@ set -e
 cd "$(dirname "$0")"
 source util/vars.sh
 
-rm -f Dockerfile
+export LC_ALL=C.UTF-8
+
+rm -f Dockerfile Dockerfile.{dl,final,dl.final}
 
 layername() {
     printf "layer-"
     basename "$1" | sed 's/.sh$//'
-}
-
-exec_dockerstage() {
-    SCRIPT="$1"
-    (
-        SELF="$SCRIPT"
-        source "$SCRIPT"
-        ffbuild_enabled || exit 0
-        ffbuild_dockerstage || exit $?
-    )
 }
 
 to_df() {
@@ -26,8 +18,47 @@ to_df() {
     echo >> "$_of"
 }
 
+###
+### Generate main Dockerfile
+###
+
+exec_dockerstage() {
+    SCRIPT="$1"
+    (
+        SELF="$SCRIPT"
+        STAGENAME="$(basename "$SCRIPT" | sed 's/.sh$//')"
+        source util/dl_functions.sh
+        source "$SCRIPT"
+
+        ffbuild_enabled || exit 0
+
+        to_df "ENV SELF=\"$SELF\" STAGENAME=\"$STAGENAME\""
+
+        set -x
+
+        STG="$(ffbuild_dockerdl)"
+        if [[ -n "$STG" ]]; then
+            HASH="$(sha256sum <<<"$STG" | cut -d" " -f1)"
+            to_df "ADD .cache/downloads/${STAGENAME}_${HASH}.tar.xz /${STAGENAME}"
+            to_df "WORKDIR /${STAGENAME}"
+        fi
+
+        ffbuild_dockerstage || exit $?
+    )
+}
+
+export TODF="Dockerfile"
+
 to_df "FROM ${REGISTRY}/${REPO}/base-${TARGET}:latest AS base"
 to_df "ENV TARGET=$TARGET VARIANT=$VARIANT REPO=$REPO ADDINS_STR=$ADDINS_STR"
+to_df "COPY util/run_stage.sh /usr/bin/run_stage"
+
+for addin in "${ADDINS[@]}"; do
+(
+    source addins/"${addin}.sh"
+    type ffbuild_dockeraddin &>/dev/null && ffbuild_dockeraddin || true
+)
+done
 
 PREVLAYER="base"
 for ID in $(ls -1d scripts.d/??-* | sed -s 's|^.*/\(..\).*|\1|' | sort -u); do

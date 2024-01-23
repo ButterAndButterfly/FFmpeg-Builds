@@ -1,16 +1,13 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/xiph/opus.git"
-SCRIPT_COMMIT="bce1f392353d72d77d543bb2069a044ae1045e9d"
+SCRIPT_COMMIT="c85499757c148fede8604cffa12454206b6138ba"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" opus
-    cd opus
-
     ./autogen.sh
 
     local myconf=(

@@ -10,6 +10,10 @@ ffbuild_dockerfinal() {
     return 0
 }
 
+ffbuild_dockerdl() {
+    true
+}
+
 ffbuild_dockerlayer() {
     return 0
 }

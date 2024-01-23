@@ -1,16 +1,13 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/libass/libass.git"
-SCRIPT_COMMIT="44f6532daf5eb13cb1aa95f5449a77b5df1dd85b"
+SCRIPT_COMMIT="c047dd2ea16f73abb4f448e6db3637158c1226d0"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" ass
-    cd ass
-
     ./autogen.sh
 
     local myconf=(

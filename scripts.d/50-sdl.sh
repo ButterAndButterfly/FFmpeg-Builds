@@ -1,16 +1,14 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/libsdl-org/SDL.git"
-SCRIPT_COMMIT="92c71ae385d9770e7ac3db4c9a072151e923012d"
+SCRIPT_COMMIT="5773c347d58d07a45b33ac4ecc93fd3e6a86d483"
+SCRIPT_BRANCH="SDL2"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" sdl
-    cd sdl
-
     mkdir build && cd build
 
     local mycmake=(
