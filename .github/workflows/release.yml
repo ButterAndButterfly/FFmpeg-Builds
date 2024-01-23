@@ -53,16 +53,27 @@ jobs:
         with:
           name: ffmpeg
           path: artifacts
-      - name: Create release
-        id: create_release
+          
+      - name: Get Info
         run: |
-          set -xe
-          shopt -s nullglob
           RELDATE="$(date +'%Y-%m-%d %H:%M')"
           NAME="Auto-Build $RELDATE"
-          TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
-          hub release create $(for a in artifacts/*.{zip,tar.xz}; do echo -a $a; done) -m "$NAME" -t "master" "$TAGNAME"
-          echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
-          echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
+          TAGNAME="autobuild-$RELDATE"
+          echo "tag_name=${TAGNAME}" >> $GITHUB_ENV
+          echo "rel_date=${RELDATE}" >> $GITHUB_ENV
+          echo "release_name=${NAME}" >> $GITHUB_ENV
+          echo "ff_config=${FF_SPECIFIC_CONFIGURE}" >> $GITHUB_ENV
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          FF_SPECIFIC_CONFIGURE: ${{ secrets.FF_SPECIFIC_CONFIGURE }}
+          
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.tag_name }}
+          name: ${{ env.release_name }}
+          body: |
+            相关配置为: ${{ env.ff_config }}
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/*
