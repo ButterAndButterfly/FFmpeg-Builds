@@ -10,6 +10,7 @@ Here, the aim of this repo is to smallize the asset size by customize the build 
 + `.github/workflows/*`
     + remove all the `*.yml`  
     + create `release.yml`  
+    + create `build-win-arm64.yml`  
 
 + `build.sh`  
 set `FF_CONFIGURE="${FF_SPECIFIC_CONFIGURE:-$FF_CONFIGURE}"` before the command
@@ -41,3 +42,5 @@ matrix:
 ```
 + Trigger workflow dispatch manually in Github Actions.
 
++ If more complex config for windows on arm64, lib `SDL` or `x264` may be needed.   
+If runs failed, you can take a look at <https://github.com/dvhh/ffmpeg-wos-arm64-build>

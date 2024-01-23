@@ -1,0 +1,62 @@
+name: Build win-arm64
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: mstorsjo/llvm-mingw:20230614
+    steps:
+      - uses: actions/checkout@v3 
+        with:
+          repository: FFmpeg/FFmpeg
+          path: ffmpeg
+      - name: build ffmpeg
+        run: |
+          mkdir -p ${{ github.workspace }}/local
+          cd ffmpeg
+          export PKG_CONFIG_LIBDIR=${{ github.workspace }}/local/lib/pkgconfig
+          ./configure --prefix=${{ github.workspace }}/local --pkg-config=/usr/bin/x86_64-pc-linux-gnu-pkg-config --pkgconfigdir=${{ github.workspace }}/local/lib/pkgconfig --cross-prefix=aarch64-w64-mingw32- --arch=arm64 --target-os=mingw32 ${{ secrets.FF_SPECIFIC_CONFIGURE }}
+
+          make -j16
+          make install
+          
+      - name: archive
+        run: |
+          mkdir output
+          readlink -f output
+          cp ${{ github.workspace }}/local/bin/* output
+          cd output
+          zip -r -D ../ffmpeg-win-arm64.zip .
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg
+          path: ffmpeg-win-arm64.zip
+          
+      - name: Get Info
+        run: |
+          RELDATE="$(date +'%Y-%m-%d %H:%M')"
+          NAME="Auto-Build $RELDATE"
+          TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
+          echo "tag_name=${TAGNAME}" >> $GITHUB_ENV
+          echo "rel_date=${RELDATE}" >> $GITHUB_ENV
+          echo "release_name=${NAME}" >> $GITHUB_ENV
+          echo "ff_config=${FF_SPECIFIC_CONFIGURE}" >> $GITHUB_ENV
+        env:
+          FF_SPECIFIC_CONFIGURE: ${{ secrets.FF_SPECIFIC_CONFIGURE }}
+          
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.tag_name }}
+          name: ${{ env.release_name }}
+          body: |
+            相关配置为: ${{ env.ff_config }}
+          draft: false
+          prerelease: false
+          files: |
+            ffmpeg-win-arm64.zip
